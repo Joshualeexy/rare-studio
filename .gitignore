@@ -1,0 +1,84 @@
+# ==============================================================================
+# Git Ignore Configuration - Autonomous Niche Cinema Engine
+# ==============================================================================
+
+# Operating System & IDE Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Environment & Configuration Secrets (NEVER COMMIT)
+config.toml
+config.toml.bak
+/config.toml
+/config.toml.bak
+.env
+.env.*
+*.env
+*.pem
+*.key
+
+# Python Bytecode & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+app/**/__pycache__/
+core/**/__pycache__/
+test/**/__pycache__/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+venv/
+.venv/
+
+# Video & Render Outputs (Strictly Excluded - NEVER COMMIT)
+output/
+/output/
+storage/
+/storage/
+test_202*
+test_runs/
+202*
+output_*
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+*.flv
+*.webm
+*.ts
+*.wav
+
+# Whitelist bundled audio and fonts in repository
+!resource/songs/*.mp3
+!resource/fonts/*.ttf
+
+# Pipeline Checkpoints & Runtime Logs
+pipeline_state*.json
+pipeline_debug.log
+infinite_pipeline.log
+*.log
+logs/
+streamlit.log
+
+# Temporary & Cache Dirs
+node_modules/
+services/**/node_modules/
+services/**/*_profile/
+services/**/.env
+/models/
+./models/*
+CLAUDE.md
+debug/
+debug_*.py
+.codegraph
+/docs/superpowers
+.understand-anything
+/sites/docs/.vuepress/.temp
+/sites/docs/.vuepress/.cache
+/sites/docs/.vuepress/dist

@@ -1,0 +1,111 @@
+[niche]
+name = "Rarely Seen"
+slug = "rarely_seen"
+description = "Rare visuals, shocking real-world phenomena, forbidden places, and things caught on camera that you've never seen before"
+language = "en"
+
+[video_target]
+min_duration = 25.0
+max_duration = 35.0
+min_words = 65
+max_words = 90
+
+[series]
+enabled = true
+current_arc = "Rare Photos You've Never Seen Before"
+current_episode = 1
+total_episodes = 5
+episodes = [
+    "Rare Photos You've Never Seen Before [Part 1]",
+    "Rare Photos You've Never Seen Before [Part 2]",
+    "Rare Photos You've Never Seen Before [Part 3]",
+    "Rare Photos You've Never Seen Before [Part 4]",
+    "Rare Photos You've Never Seen Before [Part 5]",
+]
+
+[llm]
+provider = "deepseek"
+model = "deepseek-chat"
+
+[persona]
+tone = "mysterious, high-retention visual narrator, suspenseful, fast-paced"
+hook_style = "disbelief_or_shock"
+banned_phrases = [
+    "in today's video",
+    "dive into",
+    "welcome back",
+    "let's explore",
+    "hit that subscribe button",
+    "without further ado",
+]
+
+[voice]
+provider = "edge"
+voice_name = "en-US-ChristopherNeural"
+voice_rate = 1.08
+voice_volume = 1.0
+
+[visual]
+mode = "photo"
+aspect_ratio = "9:16"
+source = "bing_web_photos"
+clip_duration = 3.0
+transition_mode = "fade"
+concat_mode = "sequential"
+negative_keywords = [
+    "vlog",
+    "bikini",
+    "cooking",
+    "food",
+    "party",
+    "cartoon",
+    "fitness",
+    "vlogger",
+    "gameplay",
+    "selfie",
+    "workout",
+    "album",
+    "hands",
+    "holding",
+    "paper",
+    "vinyl",
+    "crate",
+    "studio",
+    "actor",
+    "reenactment",
+    "desk",
+    "table",
+    "corkboard",
+    "frame",
+    "picture frame",
+    "alamy",
+    "getty",
+    "shutterstock",
+    "istock",
+    "watermark",
+    "stock photo",
+]
+
+[subtitle]
+font_name = "Montserrat-Black.ttf"
+enabled = true
+position = "custom"
+custom_position = 70.0
+font_size = 54
+stroke_width = 4
+color = "#FFFFFF"
+highlight_color = "#FFD700"
+text_background_color = "#000000"
+rounded_subtitle_background = true
+
+[audio]
+bgm_type = "random"
+bgm_volume = 0.18
+bgm_ducking = true
+bgm_ducking_volume = 0.08
+
+[watermark]
+enabled = true
+text = "rare-studio"
+position = "bottom-right"
+font_size = 24
