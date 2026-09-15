@@ -36,25 +36,51 @@ class AssetRegistry:
         return conn
 
     def _init_db(self) -> None:
-        with self._get_connection() as conn:
-            conn.execute("""
-            CREATE TABLE IF NOT EXISTS assets (
-                asset_id TEXT PRIMARY KEY,
-                source_url TEXT NOT NULL,
-                provider TEXT NOT NULL,
-                media_type TEXT NOT NULL,
-                topic TEXT,
-                niche TEXT,
-                episode_id TEXT,
-                used_count INTEGER DEFAULT 1,
-                first_used_at REAL NOT NULL,
-                last_used_at REAL NOT NULL
+        try:
+            with self._get_connection() as conn:
+                conn.execute("""
+                CREATE TABLE IF NOT EXISTS assets (
+                    asset_id TEXT PRIMARY KEY,
+                    source_url TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    media_type TEXT NOT NULL,
+                    topic TEXT,
+                    niche TEXT,
+                    episode_id TEXT,
+                    used_count INTEGER DEFAULT 1,
+                    first_used_at REAL NOT NULL,
+                    last_used_at REAL NOT NULL
+                )
+                """)
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_niche ON assets(niche)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_url ON assets(source_url)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_provider ON assets(provider)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_last_used ON assets(last_used_at)")
+        except sqlite3.DatabaseError:
+            backup_path = f"{self.db_path}.corrupt-{int(time.time())}"
+            os.replace(self.db_path, backup_path)
+            logger.warning(
+                f"[AssetRegistry] Invalid database moved to {backup_path}; recreating it"
             )
-            """)
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_niche ON assets(niche)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_url ON assets(source_url)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_provider ON assets(provider)")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_assets_last_used ON assets(last_used_at)")
+            with self._get_connection() as conn:
+                conn.execute("""
+                CREATE TABLE assets (
+                    asset_id TEXT PRIMARY KEY,
+                    source_url TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    media_type TEXT NOT NULL,
+                    topic TEXT,
+                    niche TEXT,
+                    episode_id TEXT,
+                    used_count INTEGER DEFAULT 1,
+                    first_used_at REAL NOT NULL,
+                    last_used_at REAL NOT NULL
+                )
+                """)
+                conn.execute("CREATE INDEX idx_assets_niche ON assets(niche)")
+                conn.execute("CREATE INDEX idx_assets_url ON assets(source_url)")
+                conn.execute("CREATE INDEX idx_assets_provider ON assets(provider)")
+                conn.execute("CREATE INDEX idx_assets_last_used ON assets(last_used_at)")
 
     @staticmethod
     def hash_url(url: str) -> str:

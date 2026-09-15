@@ -229,32 +229,23 @@ else
     log_info "config.toml already exists. Preserving your existing configuration."
 fi
 
-# ── 6. Setup Global CLI Commands ──────────────────────────────────────────────
-log_info "Step 6/6: Installing global CLI commands ('moneyprinter-studio', 'cinema-engine', 'run_worker')..."
+# ── 6. Setup Global CLI Command ───────────────────────────────────────────────
+log_info "Step 6/6: Installing the optional 'rare-studio' command..."
 
-chmod +x "${PROJECT_DIR}/run_worker.sh"
-chmod +x "${PROJECT_DIR}/run_series.py"
-chmod +x "${PROJECT_DIR}/run_infinite_generator.py"
-
+chmod +x "${PROJECT_DIR}/main.py"
 INSTALL_GLOBAL=false
 if [ -d "$HOME/.local/bin" ]; then
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "$HOME/.local/bin/moneyprinter-studio"
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "$HOME/.local/bin/moneyprinter"
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "$HOME/.local/bin/cinema-engine"
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "$HOME/.local/bin/run_worker"
+    ln -sf "${PROJECT_DIR}/main.py" "$HOME/.local/bin/rare-studio"
     INSTALL_GLOBAL=true
 elif [ -d "/usr/local/bin" ] && [ -w "/usr/local/bin" ]; then
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "/usr/local/bin/moneyprinter-studio"
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "/usr/local/bin/moneyprinter"
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "/usr/local/bin/cinema-engine"
-    ln -sf "${PROJECT_DIR}/run_worker.sh" "/usr/local/bin/run_worker"
+    ln -sf "${PROJECT_DIR}/main.py" "/usr/local/bin/rare-studio"
     INSTALL_GLOBAL=true
 fi
 
 if [ "$INSTALL_GLOBAL" = true ]; then
-    log_success "Installed global commands: 'moneyprinter-studio', 'moneyprinter', 'cinema-engine' and 'run_worker'"
+    log_success "Installed global command: 'rare-studio'"
 else
-    log_warn "Could not link to ~/.local/bin. You can run './run_worker.sh' directly."
+    log_warn "Could not install a global command. Run 'python main.py' from the project directory."
 fi
 
 # ── Finished ──────────────────────────────────────────────────────────────────
@@ -264,18 +255,13 @@ echo -e "${GREEN}${BOLD}   🎬 Installation Complete! MoneyPrinter Studio is Re
 echo -e "${GREEN}${BOLD}================================================================${NC}"
 echo ""
 echo -e "Quickstart Options:"
-echo -e "  1. Launch a 5-episode narrative series for any niche:"
-echo -e "     ${CYAN}./run_worker.sh series prehistoric 5${NC}      # Primordial beasts & extinctions"
-echo -e "     ${CYAN}./run_worker.sh series space_anomalies 5${NC}  # Deep space anomalies"
-echo -e "     ${CYAN}./run_worker.sh series true_crime 5${NC}       # Unsolved true crime cold cases"
-echo -e "     ${CYAN}./run_worker.sh series unsolved_mysteries 5${NC} # Chilling historical anomalies"
+echo -e "  1. Generate one episode:"
+echo -e "     ${CYAN}python main.py run --profile rarely_seen --topic \"Inside abandoned Soviet space shuttle hangars\"${NC}"
 echo ""
-echo -e "  2. Launch continuous overnight infinite multi-niche generator:"
-echo -e "     ${GREEN}${BOLD}./run_worker.sh infinite${NC}   (or ${CYAN}cinema-engine infinite${NC})"
+echo -e "  2. Launch a multi-episode series:"
+echo -e "     ${CYAN}python main.py series --profile rarely_seen --count 5${NC}"
 echo ""
-echo -e "  3. Check active rendering checkpoints & generated videos:"
-echo -e "     ${YELLOW}./run_worker.sh status${NC}"
+echo -e "  3. Start the local video gallery:"
+echo -e "     ${CYAN}python main.py gallery --port 5050${NC}"
 echo ""
-echo -e "  4. List all available niche profiles:"
-echo -e "     ${MAGENTA}./run_worker.sh profiles${NC}"
 echo ""
