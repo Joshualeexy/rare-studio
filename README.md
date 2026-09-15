@@ -13,6 +13,10 @@ narration, render karaoke subtitles and publish a finished vertical video.
 
 </div>
 
+## Demo
+
+![Rare-Studio demo](docs/media/demo.gif)
+
 ## What Rare-Studio does
 
 Rare-Studio is a profile-driven AI video pipeline. The bundled `rarely_seen`

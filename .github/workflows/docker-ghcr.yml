@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: ghcr.io/joshualeexy/moneyprinter-studio
+  IMAGE_NAME: ghcr.io/joshualeexy/rare-studio
 
 jobs:
   publish:
