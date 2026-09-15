@@ -2,119 +2,188 @@
 
 # Rare-Studio
 
-Rare-Studio is an autonomous, photo-first video production pipeline for short
-vertical videos. It researches a topic, writes a narrated countdown script,
-plans the visuals, gathers or generates images, synthesizes narration, renders
-captions and motion, and publishes finished episodes to a local video gallery.
+### Autonomous short-form video production Top 5 for rare photos, hidden places and real historical stories
 
-The bundled `rarely_seen` profile produces mysterious, fast-paced videos in the
-format **Rare Photos You've Never Seen Before**. The pipeline is profile-driven,
-so the same engine can be adapted to other niches without changing the core
-renderer.
-
-![Rare-Studio output: abandoned Soviet space shuttle hangar](docs/media/space-shuttle-hangar.jpg)
-
-> This repository is an active open-source project. The generated previews above
-> are real frames from the local output archive. Full render files stay ignored
-> by git because a single episode can be several megabytes or more.
+Research a topic, write a grounded countdown script, source visuals, synthesize
+narration, render karaoke subtitles and publish a finished vertical video.
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![FFmpeg](https://img.shields.io/badge/video-FFmpeg-007808)](https://ffmpeg.org/)
 
-## What it does
+</div>
 
-- researches topics and grounds scripts with archival and web sources;
-- generates short countdown scripts through a configurable LLM provider;
-- directs each script beat toward photo search or optional ComfyUI art;
-- downloads and ranks candidate visuals while tracking reuse in SQLite;
-- creates Edge TTS narration and timed subtitle overlays;
-- applies Ken Burns-style motion, transitions, music and audio ducking;
-- encodes with NVIDIA NVENC when available, with an FFmpeg CPU fallback;
-- saves checkpoints so interrupted work can resume;
-- serves completed MP4 files in a searchable local gallery.
+## What Rare-Studio does
 
-## Generated output
+Rare-Studio is a profile-driven AI video pipeline. The bundled `rarely_seen`
+profile is tuned for mysterious, fast-paced **Rare Photos You've Never Seen
+Before** episodes, but the worker, director, renderer and gallery are designed
+to be reused for other niches.
 
-These are representative episodes already produced by the pipeline:
+A typical production moves through six stages:
+
+1. **Research and grounding**: gathers topic context and, for photo-first
+   profiles, builds a candidate pool of authentic images and backstories.
+2. **Narration**: generates a short script through the configured LLM and
+   synthesizes Edge TTS voiceover.
+3. **Karaoke subtitles**: creates word-timed subtitle data for the narration.
+4. **Shot direction and sourcing**: turns script beats into scenes, then uses
+   selected photos, direct web images, optional ComfyUI art or a procedural
+   fallback.
+5. **Cinema rendering**: applies motion, transitions, watermarking, music
+   ducking and FFmpeg encoding.
+6. **Archive packaging**: writes the MP4, thumbnail, metadata and ranking report
+   into the profile archive and exposes it in the local gallery.
+
+## Proof from the pipeline
+
+These are preview frames from real episodes already generated in the local
+output archive. They show different subjects going through the same production
+system rather than a single demo hard-coded for one topic.
 
 <table>
-    <tr>
-        <td><img src="docs/media/space-shuttle-hangar.jpg" alt="Space shuttle inside an abandoned Soviet hangar" width="240"></td>
-        <td><img src="docs/media/wwii-photos.jpg" alt="Generated frame from a World War II photo episode" width="240"></td>
-        <td><img src="docs/media/olympic-ghost-towns.jpg" alt="Generated frame from an abandoned Olympic venues episode" width="240"></td>
-    </tr>
-    <tr>
-        <td align="center">Soviet space shuttle hangars</td>
-        <td align="center">WWII photos</td>
-        <td align="center">Olympic ghost towns</td>
-    </tr>
+  <tr>
+    <td><img src="docs/media/space-shuttle-hangar.jpg" alt="Space shuttle inside an abandoned Soviet hangar" width="220"></td>
+    <td><img src="docs/media/wwii-photos.jpg" alt="Frame from a World War II declassified photos episode" width="220"></td>
+    <td><img src="docs/media/olympic-ghost-towns.jpg" alt="Frame from an abandoned Olympic venues episode" width="220"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Inside Abandoned Soviet Space Shuttle Hangars</b><br>39 seconds</td>
+    <td align="center"><b>WWII Photos They Tried to Erase</b><br>40 seconds</td>
+    <td align="center"><b>Olympic Ghost Towns</b><br>41 seconds</td>
+  </tr>
 </table>
 
-Completed episodes are written to:
+Other generated episodes in the archive include **Chernobyl's Forbidden Photos
+Revealed**, **Deep Sea Photos That Leave You Speechless**, **5 Islands So Remote
+They're Terrifying**, and a five-part `Rare Photos You've Never Seen Before`
+series. The profile targets 25-35 seconds and 65-90 words, but final duration
+varies with narration and scene timing.
 
-```text
-output/<date>-<profile>/<episode>/
-├── <episode>.mp4
-├── thumbnail.jpg
-├── metadata.json
-├── candidates_ranking.json
-└── scene_art_*.jpg
-```
-
-The checked-in images are documentation previews copied from the local output
-archive. Their underlying source media may have separate licensing terms; verify
-source and attribution requirements before redistributing generated episodes.
+The preview images are intentionally small documentation assets. Full videos
+remain excluded from git because they are large runtime artifacts. Source images
+used in generated episodes may have separate licenses and attribution
+requirements; verify them before publishing or redistributing an episode.
 
 ## Architecture
 
 ```mermaid
-flowchart LR
-        Profile[Profile TOML] --> Research[Research and grounding]
-        Research --> LLM[LLM script generation]
-        LLM --> Director[Shot planning]
-        Director --> Photos[Photo harvesting and ranking]
-        Director --> Art[Optional ComfyUI art]
-        LLM --> Voice[Edge TTS narration]
-        Photos --> Render[FFmpeg cinema engine]
-        Art --> Render
-        Voice --> Render
-        Render --> State[Checkpoints and SQLite registry]
-        State --> Output[MP4, thumbnail and metadata]
-        Output --> Gallery[Local web gallery :5050]
+flowchart TD
+    Profile[profiles/rarely_seen.toml] --> Research[Research and grounding]
+    Config[config.toml] --> LLM[LLM provider]
+    Research --> LLM
+    LLM --> Script[Countdown script]
+    Script --> Voice[Edge TTS narration]
+    Script --> Director[Movie Director]
+    Director --> Candidate[Curated article photos]
+    Director --> Web[Direct web photo sourcing]
+    Director --> Comfy[Optional ComfyUI SDXL]
+    Candidate --> Render[FFmpeg cinema engine]
+    Web --> Render
+    Comfy --> Render
+    Voice --> Render
+    Render --> State[Checkpoint and asset registry]
+    State --> Archive[MP4, thumbnail and metadata]
+    Archive --> Gallery[Local gallery :5050]
 ```
 
-Important modules:
+### Core modules
 
-| Area | Entry point | Responsibility |
+| Area | Module | Responsibility |
 | --- | --- | --- |
-| CLI | [`main.py`](main.py) | Unified command-line entry point |
-| Worker | [`runners/worker.py`](runners/worker.py) | End-to-end episode orchestration |
-| Research | [`core/researcher.py`](core/researcher.py) | Evidence and source gathering |
-| Direction | [`core/director.py`](core/director.py) | Script beats and visual plans |
-| Visuals | [`core/visual_fetcher.py`](core/visual_fetcher.py) | Candidate image retrieval and filtering |
-| Rendering | [`core/cinema_engine.py`](core/cinema_engine.py) | Motion, compositing and encoding |
-| State | [`core/checkpoint.py`](core/checkpoint.py) | Durable pipeline progress |
-| Asset registry | [`core/asset_registry.py`](core/asset_registry.py) | SQLite-based asset reuse tracking |
-| Gallery | [`runners/gallery.py`](runners/gallery.py) | Local MP4 browser and streamer |
+| CLI | [`main.py`](main.py) | Unified commands for workers, series, gallery and subtitle reburns |
+| Orchestration | [`runners/worker.py`](runners/worker.py) | Runs the six-stage production pipeline |
+| Research | [`core/researcher.py`](core/researcher.py) | Topic research and evidence context |
+| Archival sourcing | [`app/services/archival_crawler.py`](app/services/archival_crawler.py) | Curated article discovery and verified image downloads |
+| Visual direction | [`core/director.py`](core/director.py) | Converts scripts into scene and shot plans |
+| Web visuals | [`core/cinema_engine.py`](core/cinema_engine.py) | Direct image search, deduplication and motion-clip creation |
+| Rendering | [`core/cinema_engine.py`](core/cinema_engine.py) | Ken Burns motion, transitions, audio mix and FFmpeg encoding |
+| Voice | [`app/services/voice.py`](app/services/voice.py) | Edge TTS narration and alignment inputs |
+| Subtitles | [`app/services/subtitle.py`](app/services/subtitle.py) | Word-timed karaoke subtitle rendering |
+| State | [`core/checkpoint.py`](core/checkpoint.py) | Atomic progress persistence and resume support |
+| Asset registry | [`core/asset_registry.py`](core/asset_registry.py) | SQLite URL, title and content reuse tracking |
+| Gallery | [`runners/gallery.py`](runners/gallery.py) | Local searchable MP4 player with range streaming |
 
-## Requirements
+## Visual sourcing paths
 
-- Python 3.11 or newer
-- FFmpeg available on `PATH`
-- Network access for the configured LLM, TTS and media sources
-- An API key for the selected cloud LLM, or a running local Ollama model
+Node.js is **not required by the renderer or gallery**. It is an optional
+browser-backed source used by the default `rarely_seen` archival stage.
 
-Optional:
+### Curated archival articles
 
-- NVIDIA GPU and an FFmpeg build with `h264_nvenc`
-- [ComfyUI](https://github.com/comfyanonymous/ComfyUI) for generated fallback art
-- Node.js and Chromium for the optional scraper service in `services/scraper`
-- Ollama for local LLM execution
+The worker can start the Playwright service in `services/scraper` on port `4050`.
+That service discovers curated article pages and returns image candidates and
+backstories to [`archival_crawler.py`](app/services/archival_crawler.py).
+Downloaded images are checked for dimensions, file validity, duplicates and
+blocked stock or document patterns before ranking.
+
+Install it when you want the strongest photo-first workflow:
+
+```bash
+cd services/scraper
+npm ci
+npx playwright install chromium
+npm start
+```
+
+If Node.js is unavailable, the worker continues to the other sourcing paths,
+but the curated article-photo candidate pool may be empty.
+
+### Direct web images
+
+The cinema engine can also search and download direct web images for individual
+scenes. Candidate URLs and image bytes are checked against the persistent asset
+registry and current episode keys to avoid reuse.
+
+### ComfyUI fallback
+
+ComfyUI can generate photorealistic scene art when authentic imagery cannot be
+found. It is optional and can be configured with:
+
+```bash
+export COMFY_PATH="$HOME/comfyui/ComfyUI"
+export COMFY_URL="http://127.0.0.1:8188"
+```
+
+If no web image or ComfyUI result is available, the renderer has a procedural
+last-resort canvas so the pipeline can still complete a renderable scene.
+
+## The bundled profile
+
+[`profiles/rarely_seen.toml`](profiles/rarely_seen.toml) defines the current
+creative direction:
+
+- **Niche**: Rarely Seen
+- **Series arc**: *Rare Photos You've Never Seen Before*
+- **Format**: fast Top 5 countdown narration
+- **Target**: 25-35 seconds and 65-90 words
+- **LLM**: DeepSeek `deepseek-chat`
+- **Voice**: Edge TTS `en-US-ChristopherNeural` at 1.08x
+- **Visual mode**: 9:16 photo-first scenes with 3-second target clips
+- **Subtitles**: Montserrat Black, rounded dark background, gold active words
+- **Audio**: random background music with narration ducking
+- **Watermark**: `rare-studio` in the bottom-right corner
+
+The visual source name in the profile is a legacy label; the current worker uses
+curated article discovery, direct web-photo sourcing and optional ComfyUI paths.
 
 ## Installation
 
-### Using uv (recommended)
+### Requirements
+
+- Python 3.11 or newer
+- FFmpeg on `PATH`
+- Network access to the configured LLM, TTS and image sources
+- An API key for the selected cloud LLM, or a running local Ollama model
+
+Optional components:
+
+- Node.js, npm and Playwright for curated article discovery
+- NVIDIA GPU with FFmpeg `h264_nvenc`
+- ComfyUI for generated fallback visuals
+- Ollama for local LLM execution
+
+### Using uv
 
 ```bash
 git clone https://github.com/kodar/rare-studio.git
@@ -124,10 +193,10 @@ cp config.example.toml config.toml
 ```
 
 `uv sync` uses [`pyproject.toml`](pyproject.toml) and [`uv.lock`](uv.lock),
-creates `.venv`, and installs the locked dependencies. Run commands with
-`uv run ...` when the environment is not activated.
+creates `.venv`, and installs the locked dependencies. Run commands as
+`uv run python main.py ...` when the environment is not activated.
 
-### Using Python venv and pip
+### Using Python and pip
 
 ```bash
 git clone https://github.com/kodar/rare-studio.git
@@ -138,29 +207,20 @@ python -m pip install -r requirements.txt
 cp config.example.toml config.toml
 ```
 
-The project also auto-reexecutes through `.venv/bin/python` when that interpreter
-exists, so `python main.py` can be used from the project root after setup.
+From the project root, `python main.py` also re-executes through
+`.venv/bin/python` when that interpreter exists.
 
-### Optional scraper service
-
-The Node service is not required for the basic pipeline, but can provide browser
-search support when enabled by the configured workflow:
-
-```bash
-cd services/scraper
-npm ci
-npx playwright install chromium
-npm start
-```
+The repository includes [`install.sh`](install.sh), which checks FFmpeg and
+Python, creates or reuses `.venv`, installs Python requirements and can install
+the `rare-studio` command. Review it before allowing it to install system
+packages or optional services on your machine.
 
 ## Configuration
 
-Never commit `config.toml`; it is ignored by git. Start from
-[`config.example.toml`](config.example.toml) and provide credentials for the
-services you intend to use.
+`config.toml` is ignored by git. Copy [`config.example.toml`](config.example.toml)
+and keep all real credentials in the local copy or environment variables.
 
-For the bundled profile, configure DeepSeek or change the profile/provider to a
-different supported backend:
+For the bundled profile, the practical minimum is a DeepSeek key:
 
 ```toml
 [app]
@@ -168,96 +228,110 @@ llm_provider = "deepseek"
 deepseek_api_key = "your-api-key"
 ```
 
-The profile in [`profiles/rarely_seen.toml`](profiles/rarely_seen.toml) defines
-the current niche, target duration, voice, visual mode, subtitle style and audio
-mix. Keep API keys in environment variables or the ignored local config file,
-and rotate any key that has ever been committed or shared publicly.
+The example app configuration currently defaults to Moonshot, while the
+`rarely_seen` profile selects DeepSeek in its own `[llm]` section. The profile
+selection therefore wins for the default worker run. Change the profile or
+provider deliberately if you use another supported backend.
 
-Optional ComfyUI settings:
-
-```bash
-export COMFY_PATH="$HOME/comfyui/ComfyUI"
-export COMFY_URL="http://127.0.0.1:8188"
-```
-
-Optional local LLM:
+For local generation with Ollama:
 
 ```bash
 ollama serve
 ollama pull qwen3:8b
 ```
 
-## CLI
+Never commit `config.toml`, API keys, cookies or downloaded credentials. Rotate
+any credential that has been exposed in a public repository or terminal log.
 
-Run these commands from the repository root. The default profile is
-`rarely_seen`.
+## CLI reference
 
-### Generate one episode
+Run commands from the repository root. The default profile is `rarely_seen`.
+
+### One episode
+
+Use an explicit topic when you want deterministic subject selection:
 
 ```bash
 python main.py run \
-    --profile rarely_seen \
-    --topic "Inside abandoned Soviet space shuttle hangars" \
-    --clear-state
+  --profile rarely_seen \
+  --topic "Inside abandoned Soviet space shuttle hangars"
 ```
 
-Without an explicit topic, the worker can select one using the profile and
-configured research/LLM workflow:
+Use the root command to let the configured workflow choose a topic:
 
 ```bash
 python main.py --clear-state
 ```
 
-### Generate a batch
+`--clear-state` clears the saved checkpoint for a fresh session. It does not
+delete the output archive or asset registry.
+
+### Batch series
 
 ```bash
 python main.py series --profile rarely_seen --count 5
 ```
 
-### Run continuously
+### Continuous generation
 
 ```bash
 python main.py infinite
 python main.py infinite --no-gallery
 ```
 
-### Start the gallery
+### Gallery
 
 ```bash
 python main.py gallery --host 127.0.0.1 --port 5050
 ```
 
-Open <http://localhost:5050>. The gallery recursively scans `output/`, creates
-missing thumbnails with FFmpeg, and supports HTTP range requests for seeking.
+Open <http://localhost:5050>. The gallery recursively scans `output/`, derives
+metadata from each episode, generates missing thumbnails with FFmpeg and serves
+video ranges for smooth seeking.
 
-### Re-burn subtitles
+### Subtitle reburn
 
-For the standalone runner, pass output directories positionally:
+Use the standalone runner with a positional target directory:
 
 ```bash
 python runners/reburn.py output --force
 ```
 
-## Runtime state and reset
+It uses Whisper word timestamps when available and falls back to existing SRT
+timing when Whisper cannot be loaded.
 
-Runtime data is intentionally ignored by git:
+## Output and state
+
+Completed episodes are archived by profile:
 
 ```text
-storage/tasks/                  task artifacts
-storage/checkpoints/            durable checkpoints
-storage/asset_registry.db      asset reuse registry
-pipeline_state_*.json           pipeline state snapshots
-pipeline_debug.log              debug logging
+output/
+└── rarely_seen/
+    └── <episode-slug>/
+        ├── <episode-slug>.mp4
+        ├── thumbnail.jpg
+        ├── metadata.json
+        ├── candidates_ranking.json
+        └── scene_art_*.jpg
 ```
 
-To start a new episode while preserving the asset registry:
+Runtime state stays outside the archive:
+
+```text
+storage/tasks/                   task-local audio, candidates and clips
+storage/checkpoints/             checkpoint storage
+storage/asset_registry.db        persistent asset reuse registry
+pipeline_state_rarely_seen.json  current worker state
+pipeline_debug.log               debug log
+```
+
+To start a new pipeline session while keeping prior asset history:
 
 ```bash
 python main.py --clear-state
 ```
 
-To deliberately reset the asset registry as well, remove only the database and
-let the next import recreate it:
+To reset the asset registry separately:
 
 ```bash
 rm -f storage/asset_registry.db
@@ -274,267 +348,27 @@ uv run ruff check .
 uv run pytest
 ```
 
-The codebase is Python-first, with a small Node/Playwright service under
-`services/scraper`. Keep generated media, credentials, caches and runtime state
-out of commits; the repository `.gitignore` already covers those paths.
+The project is Python-first, with a small Node/Playwright service under
+`services/scraper`. Generated media, local credentials, caches and runtime
+state are intentionally ignored by git.
 
 ## Known limitations
 
-- External APIs, image sources, TTS and optional ComfyUI make a full episode run
-    network- and service-dependent.
-- Output quality depends on the selected LLM, available source images and the
-    accuracy of the research sources.
-- The bundled `rarely_seen` profile is tuned for one short-form format rather
-    than being a general-purpose video editor.
-- Hardware acceleration is opportunistic; FFmpeg falls back to CPU encoding when
-    NVENC is unavailable.
+- Full production depends on external LLM, TTS, image and research services.
+- The bundled profile is optimized for one short-form format, not general video
+  editing.
+- Source availability and licensing vary by topic; review image attribution
+  before publishing.
+- NVENC is opportunistic and falls back to CPU encoding.
+- The curated archival source is strongest with the Node/Playwright service;
+  without it, direct web images and ComfyUI remain fallback paths.
 
 ## Contributing
 
-Issues and pull requests are welcome. For changes that affect output quality,
-include the profile/configuration used, the command run, and a small metadata
-sample rather than committing full generated videos.
+Issues and pull requests are welcome. For changes affecting output quality,
+include the profile, command and relevant metadata rather than committing full
+videos or credentials.
 
 ## License
 
 Released under the [MIT License](LICENSE).
-
-### Autonomous AI Short-Form Video Generator for "Top 5 Rare Photos You've Never Seen Before"
-
-**100% CPU Native & Universal Execution • Optional Hardware GPU Acceleration • Archival Research Grounding • LLM Scriptwriting • Photo Harvester (Wikimedia / Wikipedia / Web) • ComfyUI SDXL Fallback • Acoustic Montserrat Dark-Pill Karaoke Subtitles • Durable State Machine**
-
-[![100% CPU Compatible](https://img.shields.io/badge/Execution-100%25%20CPU%20%7C%20Any%20Hardware-blue?logo=cpu&logoColor=white)](#-system-requirements)
-[![Python Version](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Niche: Rarely Seen](https://img.shields.io/badge/Niche-Top%205%20Rare%20Photos-gold)](#-niche-profile-rarely-seen)
-[![NVIDIA NVENC](https://img.shields.io/badge/Optional%20GPU-NVIDIA%20NVENC-76B900?logo=nvidia&logoColor=white)](#-hardware-compositing)
-
-<p align="center">
-  <a href="#-overview">Overview</a> •
-  <a href="#-system-architecture">System Architecture</a> •
-  <a href="#-niche-profile-rarely-seen">Niche Profile</a> •
-  <a href="#-subsystems-deep-dive">Subsystems Deep-Dive</a> •
-  <a href="#-quickstart--installation">Quickstart</a> •
-  <a href="#-cli-reference">CLI Reference</a> •
-  <a href="#-web-gallery-ui">Web Gallery</a>
-</p>
-
-</div>
-
----
-
-## 📽️ Overview
-
-**Rare-Studio** is an autonomous video studio engineered to produce high-retention 9:16 vertical shorts (TikTok, YouTube Shorts, Instagram Reels) focusing on **"Top 5 Rare Photos You've Never Seen Before"**.
-
-The system operates end-to-end without human intervention: topic brainstorming, archival fact synthesis, 25–35s scriptwriting with a strict Top 5 countdown hook, multi-source photo harvesting (Wikimedia Commons, Wikipedia API, DuckDuckGo web photos), speech synthesis with Whisper word alignment, dark-pill karaoke subtitles, Ken Burns motion compositing, and automated deployment to a local web studio gallery.
-
----
-
-## 🏗️ System Architecture
-
-```mermaid
-flowchart TD
-    subgraph CONFIG["1. Profile & Configuration"]
-        P["profiles/rarely_seen.toml\n(Niche Definition & Pacing Constraints)"]
-        CFG["config.toml\n(API Keys & Hardware Acceleration)"]
-    end
-
-    subgraph PRE_PROD["2. Archival Research & Scripting"]
-        RES["core/researcher.py\n(Wikimedia & Wikipedia Fact Harvesting)"]
-        LLM["app/services/llm.py\n(DeepSeek-V3 / Ollama Qwen)"]
-        SCRIPT["Top 5 Script\n(65-90 words, 25-35s vertical short)"]
-    end
-
-    subgraph DIRECTION["3. Photo Harvesting & Visual Router"]
-        DIR["core/director.py\n(Sentence-by-Sentence Shot Planning)"]
-        HARVESTER["core/visual_fetcher.py\n(Multi-Source Image Harvester)"]
-        WM["Wikimedia Commons API\n(Public Domain Archival Scans)"]
-        WP["Wikipedia Article Images\n(Lead & Gallery Photos)"]
-        WEB["DuckDuckGo Image Search\n(Web Editorial Photos)"]
-        SDXL["ComfyUI SDXL\n(Fallback for Unfilmable Scenes)"]
-    end
-
-    subgraph AUDIO_SUB["4. Audio & Subtitle Subsystem"]
-        TTS["app/services/voice.py\n(Edge-TTS en-US-ChristopherNeural)"]
-        WORDS["Whisper Phonetic Alignment"]
-        KARAOKE["Montserrat-Black Dark Pill\nKaraoke Subtitle Overlay"]
-    end
-
-    subgraph COMPOSITOR["5. GPU Video Compositing & State"]
-        NVENC["core/cinema_engine.py\n(FFmpeg NVENC / libx264 Ken Burns Motion)"]
-        CHK["core/checkpoint.py\n(Atomic Step State Machine)"]
-        REG["core/asset_registry.py\n(SQLite Image Hash Tracking)"]
-        OUT["output/rarely_seen/<episode>/\n(Final MP4, JPG, metadata.json)"]
-    end
-
-    P --> RES
-    CFG --> LLM
-    RES --> LLM --> SCRIPT
-    SCRIPT --> DIR --> HARVESTER
-    SCRIPT --> TTS --> WORDS --> KARAOKE
-
-    HARVESTER -->|Authentic Archival| WM
-    HARVESTER -->|Article Photos| WP
-    HARVESTER -->|Web Editorial| WEB
-    HARVESTER -->|Unfilmable Scene Fallback| SDXL
-
-    WM --> NVENC
-    WP --> NVENC
-    WEB --> NVENC
-    SDXL --> NVENC
-    KARAOKE --> NVENC
-    TTS --> NVENC
-
-    NVENC --> CHK --> REG --> OUT
-```
-
----
-
-## 🎯 Niche Profile (`rarely_seen`)
-
-Rare-Studio comes pre-configured with the **Rarely Seen** profile ([profiles/rarely_seen.toml](file:///home/kodar/rare-studio/profiles/rarely_seen.toml)):
-
-- **Niche Name**: Rarely Seen (`rarely_seen`)
-- **Series Arc**: *Rare Photos You've Never Seen Before*
-- **Format**: Top 5 Countdown Shorts (`Number 5:` through `Number 1:`)
-- **Target Duration**: 25.0s to 35.0s (65 to 90 words)
-- **Voice**: `en-US-ChristopherNeural` at **1.08x rate**
-- **Visual Mode**: `photo` via multi-source authentic web harvesting (`bing_web_photos`, Wikimedia, Wikipedia)
-- **Subtitles**: Custom `Montserrat-Black.ttf` (Yellow `#FFD700` active word highlights, 70% vertical screen height position)
-- **Audio**: Background music with sidechain audio ducking (volume compresses during narration speech)
-
----
-
-## 🛠️ Subsystems Deep-Dive
-
-### 1. Archival Research Engine ([core/researcher.py](file:///home/kodar/rare-studio/core/researcher.py))
-Pulls authentic historical evidence packs, dates, measurements, and proper noun entities from Wikimedia Commons and Wikipedia API to ensure scripts are grounded in real historical facts.
-
-### 2. Multi-Source Photo Harvester ([core/visual_fetcher.py](file:///home/kodar/rare-studio/core/visual_fetcher.py))
-Harvests high-resolution authentic photographs while filtering out scanned book pages, PDFs, and generic document graphics using strict MIME and title blacklists.
-
-### 3. Storyboard & Visual Director ([core/director.py](file:///home/kodar/rare-studio/core/director.py))
-Deconstructs the narrative script into 5 distinct countdown item scenes. Performs keyword extraction and routes visual requirements to authentic archival photo search or ComfyUI SDXL photorealistic generation.
-
-### 4. Audio & Subtitles ([app/services/voice.py](file:///home/kodar/rare-studio/app/services/voice.py) & [app/services/subtitle.py](file:///home/kodar/rare-studio/app/services/subtitle.py))
-Synthesizes narrator speech, extracts word-accurate phonetic alignments with Whisper, and renders Montserrat dark-pill karaoke captions overlaid on 9:16 vertical video.
-
-### 5. Hardware Cinema Engine ([core/cinema_engine.py](file:///home/kodar/rare-studio/core/cinema_engine.py))
-Applies smooth dynamic Ken Burns motion presets (zooms, pans) to still photos, synchronizes sentence transitions to speech pauses, compresses background music via FFmpeg sidechain ducking, and encodes using NVIDIA NVENC (`h264_nvenc`) with CPU (`libx264`) fallback.
-
-### 6. Durable State Machine ([core/checkpoint.py](file:///home/kodar/rare-studio/core/checkpoint.py))
-Persists pipeline execution state atomically (`pipeline_state_rarely_seen.json`) at each step (`research_completed` → `script_generated` → `audio_generated` → `visuals_fetched` → `rendered`), permitting instant recovery after interruptions.
-
-### 7. Web Video Gallery UI ([runners/gallery.py](file:///home/kodar/rare-studio/runners/gallery.py))
-A first-party web studio video player running on port `5050`. Features real-time grid search, metadata inspection, HTTP 206 Partial Streaming, and audio alerts upon new episode completion.
-
----
-
-## 🚀 Quickstart & Installation
-
-### Requirements
-- **Python**: 3.11+
-- **FFmpeg**: Installed and available in PATH
-- **System**: Linux / Windows WSL2 / macOS
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/kodar/rare-studio.git
-cd rare-studio
-
-# Create virtual environment and install dependencies
-python3 -m venv .venv
-source .venv/bin/python
-
-# Using uv (recommended):
-uv sync
-```
-
-### Configuration
-Copy `config.example.toml` to `config.toml` and configure your LLM API keys (DeepSeek, OpenAI, or Ollama):
-
-```toml
-[app]
-llm_provider = "deepseek"
-deepseek_api_key = "your-deepseek-api-key"
-```
-
----
-
-## 💻 CLI Reference
-
-All commands are executed via [main.py](file:///home/kodar/rare-studio/main.py):
-
-### 1. Run Single Episode
-Generates a single video for the Rarely Seen profile:
-```bash
-python main.py run --profile rarely_seen --topic "The Solway Firth Spaceman Photo Mystery"
-```
-
-### 2. Run Series Batch
-Generates a batch of sequential or AI-brainstormed episodes:
-```bash
-python main.py series --profile rarely_seen --count 5
-```
-
-### 3. Continuous 24/7 Infinite Generator
-Runs an autonomous infinite generator loop across topics:
-```bash
-python main.py infinite
-```
-
-### 4. Web Studio Video Gallery
-Launches the Web Studio Gallery on `http://localhost:5050`:
-```bash
-python main.py gallery --port 5050
-```
-
-### 5. Re-burn Karaoke Subtitles
-Re-burns Montserrat dark-pill karaoke subtitles onto existing rendered outputs:
-```bash
-python main.py reburn
-```
-
----
-
-## 📁 Repository Structure
-
-```
-rare-studio/
-├── main.py                        # Unified CLI Entry Point
-├── config.toml                    # API Keys & System Configuration
-├── profiles/
-│   └── rarely_seen.toml           # "Top 5 Rare Photos" Profile Config
-├── core/
-│   ├── researcher.py              # Fact & Archival Research Engine
-│   ├── visual_fetcher.py          # Multi-Source Photo Harvester
-│   ├── director.py                # Storyboard & Shot Planner
-│   ├── cinema_engine.py           # FFmpeg NVENC Video Compositor
-│   ├── checkpoint.py              # Atomic State Machine
-│   ├── asset_registry.py          # SQLite Image Hash Registry
-│   └── motion_graphics.py         # Procedural Overlays
-├── runners/
-│   ├── worker.py                  # Pipeline Orchestrator
-│   ├── series.py                  # Series Runner & Topic Generator
-│   ├── infinite.py                # 24/7 Continuous Runner
-│   ├── gallery.py                 # Web Video Gallery Server (Port 5050)
-│   └── reburn.py                  # Karaoke Subtitle Re-burner
-├── app/
-│   ├── services/
-│   │   ├── llm.py                 # LLM Service (DeepSeek/OpenAI/Ollama)
-│   │   ├── voice.py               # Voice TTS & Whisper Alignment
-│   │   ├── subtitle.py            # Dark-Pill Subtitle Overlay
-│   │   └── bgm.py                 # Background Music & Sidechain Ducking
-│   └── models/                    # Pydantic Schemas
-├── output/                        # Generated MP4 Videos & Metadata
-└── storage/                       # Tasks, Checkpoints & Asset SQLite DB
-```
-
----
-
-## 📜 License
-
-Distributed under the [MIT License](LICENSE).
