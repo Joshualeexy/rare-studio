@@ -242,6 +242,7 @@ def runtime_config_lock():
             _save_config_file_locked()
 
 
+@contextmanager
 def try_acquire_runtime_config_lock():
     """Attempts to acquire the runtime config lock non-blockingly."""
     acquired = _config_save_lock.acquire(blocking=False)
